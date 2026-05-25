@@ -1,0 +1,26 @@
+[
+  {
+    "id": "template-provider",
+    "name": "Template Provider",
+    "description": "A starter template for creating providers.",
+    "version": "1.0.0",
+    "author": "Your Name",
+    "supportedTypes": [
+      "movie",
+      "tv"
+    ],
+    "filename": "providers/_template.js",
+    "enabled": true,
+    "logo": "",
+    "contentLanguage": [
+      "en"
+    ],
+    "formats": [
+      "mp4",
+      "mkv"
+    ],
+    "limited": false,
+    "disabledPlatforms": [],
+    "supportsExternalPlayer": true
+  }
+]

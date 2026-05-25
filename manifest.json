@@ -1,26 +1,20 @@
-[
-  {
-    "id": "template-provider",
-    "name": "Template Provider",
-    "description": "A starter template for creating Nuvio providers.",
-    "version": "1.0.0",
-    "author": "Your Name",
-    "supportedTypes": [
-      "movie",
-      "tv"
-    ],
-    "filename": "providers/template.js",
-    "enabled": false,
-    "logo": "",
-    "contentLanguage": [
-      "en"
-    ],
-    "formats": [
-      "mp4",
-      "mkv"
-    ],
-    "limited": false,
-    "disabledPlatforms": [],
-    "supportsExternalPlayer": true
+{
+  "id": "community.nuvio.providers",
+  "version": "1.0.0",
+  "name": "Nuvio Providers (Stremio)",
+  "description": "Community provider bridge converted from Nuvio format to a Stremio addon.",
+  "resources": [
+    "stream"
+  ],
+  "types": [
+    "movie",
+    "series"
+  ],
+  "idPrefixes": [
+    "tt",
+    "tmdb:"
+  ],
+  "behaviorHints": {
+    "configurable": false
   }
-]
+}
