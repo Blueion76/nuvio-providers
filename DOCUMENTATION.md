@@ -1,6 +1,6 @@
-# Nuvio Provider Development Guide
+# Legacy Nuvio Provider Development Guide
 
-This comprehensive guide covers everything you need to know to build, debug, and publish streaming providers for the Nuvio app.
+This guide documents the previous Nuvio provider format. The repository now runs as a Stremio addon bridge, but provider `getStreams` implementation patterns remain reusable.
 
 ## Table of Contents
 
