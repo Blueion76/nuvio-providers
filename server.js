@@ -12,12 +12,18 @@ function parseMediaId(type, id) {
     }
 
     if (id.startsWith('tmdb:')) {
-        const [, tmdbType, tmdbId, seasonRaw, episodeRaw] = id.split(':');
+        const [, tmdbTypeOrId, tmdbIdOrSeason, seasonOrEpisode, episodeRaw] = id.split(':');
+        const hasTypeSegment = ['movie', 'tv', 'series'].includes(tmdbTypeOrId);
+        const tmdbId = hasTypeSegment ? tmdbIdOrSeason : tmdbTypeOrId;
+        const seasonRaw = hasTypeSegment ? seasonOrEpisode : tmdbIdOrSeason;
+        const tmdbEpisodeRaw = hasTypeSegment ? episodeRaw : seasonOrEpisode;
         return {
             mediaId: tmdbId || null,
-            mediaType: tmdbType === 'tv' || tmdbType === 'series' ? 'tv' : 'movie',
+            mediaType: hasTypeSegment
+                ? (tmdbTypeOrId === 'tv' || tmdbTypeOrId === 'series' ? 'tv' : 'movie')
+                : (type === 'series' ? 'tv' : 'movie'),
             season: Number.isFinite(Number(seasonRaw)) ? Number(seasonRaw) : undefined,
-            episode: Number.isFinite(Number(episodeRaw)) ? Number(episodeRaw) : undefined
+            episode: Number.isFinite(Number(tmdbEpisodeRaw)) ? Number(tmdbEpisodeRaw) : undefined
         };
     }
 
@@ -55,12 +61,25 @@ function loadProviders() {
         return [];
     }
 
-    const providers = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+    let providers;
+    try {
+        providers = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+    } catch (error) {
+        console.warn(`[Addon] Invalid providers.json: ${error.message}`);
+        return [];
+    }
+
+    if (!Array.isArray(providers)) {
+        console.warn('[Addon] providers.json must contain an array');
+        return [];
+    }
+
     return providers
         .filter((provider) => provider.enabled && provider.filename)
         .map((provider) => {
             const providerPath = path.resolve(__dirname, provider.filename);
-            if (!providerPath.startsWith(__dirname)) {
+            const relativePath = path.relative(__dirname, providerPath);
+            if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
                 return null;
             }
 
@@ -78,6 +97,11 @@ function loadProviders() {
             return {
                 id: provider.id,
                 name: provider.name || provider.id,
+                supportedTypes: Array.isArray(provider.supportedTypes)
+                    ? provider.supportedTypes
+                        .map((supportedType) => (supportedType === 'series' ? 'tv' : supportedType))
+                        .filter((supportedType) => supportedType === 'movie' || supportedType === 'tv')
+                    : ['movie', 'tv'],
                 getStreams: providerModule.getStreams
             };
         })
@@ -109,8 +133,9 @@ builder.defineStreamHandler(async ({ type, id }) => {
         return { streams: [] };
     }
 
+    const matchingProviders = providers.filter((provider) => provider.supportedTypes.includes(mediaType));
     const streamsByProvider = await Promise.all(
-        providers.map(async (provider) => {
+        matchingProviders.map(async (provider) => {
             try {
                 const result = await provider.getStreams(mediaId, mediaType, season, episode);
                 if (!Array.isArray(result)) {

@@ -23,7 +23,7 @@ Add this URL in Stremio to test locally.
 
 ## Provider registry
 
-Enabled providers are listed in `/home/runner/work/nuvio-providers/nuvio-providers/providers.json`.
+Enabled providers are listed in `./providers.json`.
 
 Each enabled entry must point to a file that exports:
 
